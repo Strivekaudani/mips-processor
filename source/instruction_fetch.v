@@ -6,7 +6,7 @@ module instruction_fetch (
 							input wire 			stall,
 							input wire 			load_mem_en,
 							input wire 	[31:0] 	load_mem_data,
-							input wire 	[3:0]	load_mem_addr,
+							input wire 	[4:0]	load_mem_addr,
 							output wire [31:0] 	instr,
 							output wire [31:0] 	pc_out
 							);

@@ -2,5 +2,5 @@
 
 # list of design files to be compiled
 
-ver_files=("../../source/instruction_fetch.v"
-	  "../testbench/instruction_fetch_tb.v")	
+ver_files=("../../source/rename_unit.v"
+	  "../testbench/rename_unit_tb.v")	

@@ -7,7 +7,7 @@ module instruction_fetch_tb();
 	reg					stall;
 	reg					load_mem_en;
 	reg  [31:0]			load_mem_data;
-	reg	 [3:0]			load_mem_addr;
+	reg	 [4:0]			load_mem_addr;
 	wire [31:0] 		instr;
 	wire [31:0] 		pc_out;
 
@@ -32,7 +32,7 @@ module instruction_fetch_tb();
 		clk				= 0;
 		rst_n 			= 0;
 		stall 			= 1;
-		load_mem_en = 0;
+		load_mem_en 	= 0;
 
 		
 		repeat(10) @(posedge clk);
@@ -52,7 +52,7 @@ module instruction_fetch_tb();
 		
 
 
-		repeat(100) @(posedge clk);
+		repeat(33) @(posedge clk);
 		$finish;
 	end
 endmodule

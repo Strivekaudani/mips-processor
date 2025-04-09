@@ -9,7 +9,7 @@ module instruction_decode (
 							output wire [15:0]	imm,
 							output wire 		is_load,
 							output wire 		is_store,
-							output wire 		is_alu,
+							output wire 		is_alu
 							);
 
 	assign opcode 	= instr[31:26];
