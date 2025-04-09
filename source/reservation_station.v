@@ -47,7 +47,7 @@ module reservation_station (
 
 	assign stall = ~(~busy[0] | ~busy[1]); // Stall if no RS is free
 
-	always @(posedge clk or negedge of rst_n) begin
+	always @(posedge clk or negedge rst_n) begin
 		if (rst_n == 'b0) begin
 			for (i = 0; i < RS_SIZE; i = i + 1) begin
 				busy[i] 	<= 0;
@@ -80,7 +80,7 @@ module reservation_station (
 							Qk[i] 	<= tag_rt;
 						end
 
-						break;
+						//break;
 					end
 				end
 			end
@@ -94,8 +94,8 @@ module reservation_station (
 						alu_op2			<= Vk[i];
 						alu_dest_tag	<= dest_tag[i];
 						rs_valid_out	<= 1;
-						busy[i]			<0;
-						break;
+						busy[i]			<= 0;
+						//break;
 					end
 				end
 			end
