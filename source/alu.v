@@ -2,6 +2,7 @@
 
 module alu (
 	input wire 			clk,
+	input wire			rst_n,
 	input wire [5:0] 	opcode,
 	input wire [31:0] 	op1,
 	input wire [31:0] 	op2,
@@ -21,8 +22,13 @@ module alu (
 
 	reg processing;
 
-	always @(posedge clk) begin
-		if (start && !processing) begin
+	always @(posedge clk or negedge rst_n) begin
+		if (rst_n == 1'b0) begin
+			result		<= 32'h0000;
+			out_tag		<= 5'b00000;
+			done		<= 1'b0;
+			processing 	<= 1'b0;
+		end else if (start && !processing) begin
 			// Simulate 1-cycle execution latency (can extend if needed)
 			processing 	<= 1'b1;
 			done 		<= 1'b0;
