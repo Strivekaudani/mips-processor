@@ -49,7 +49,7 @@ module load_store_queue (
     integer i;
 
     always @(posedge clk or posedge reset) begin
-        if (reset) begin
+        if (rst_n == 1'b0) begin
             for (i = 0; i < LSQ_SIZE; i = i + 1) begin
                 busy[i] <= 0;
                 addr_rdy[i] <= 0;
@@ -74,7 +74,7 @@ module load_store_queue (
                         data_t[i]    <= data_ready ? NONE : data_tag;
                         data[i]      <= data_ready ? data_val : 32'bx;
                         data_rdy[i]  <= data_ready;
-                        break;
+                        //break;
                     end
                 end
             end
@@ -114,7 +114,7 @@ module load_store_queue (
                         end
                         busy[i] <= 0;
                     end
-                    break; // issue only one mem op at a time
+                    //break; // issue only one mem op at a time
                 end
             end
         end
