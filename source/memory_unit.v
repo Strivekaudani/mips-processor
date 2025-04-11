@@ -12,14 +12,14 @@ module memory_unit (
 	output reg [31:0]	rdata
 	);
 
-	reg [31:0] mem_array [0:1023]; // 4KB memory, word-addressable
+	reg [31:0] mem_array [0:1024]; // 1KB memory, word-addressable
 
 	integer i;
 
 	always @(posedge clk or negedge rst_n) begin
 		if (rst_n == 'b0) begin
 			for (i = 0; i < 1024; i = i + 1) begin
-				mem_array <= 32'd0;
+				mem_array[i] <= 32'd0;
 			end
 			ack		<= 'b0;
 			rdata 	<= 32'd0;
