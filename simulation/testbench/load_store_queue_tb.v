@@ -1,40 +1,40 @@
 `timescale 1ns / 1ps
 
-module load_store_queue ();
+module load_store_queue_tb ();
 
-    reg        clk;
-    reg        rst_n;
+    reg        		clk;
+    reg       		rst_n;
 
     // Issue interface
-    reg        issue_en;
-    reg        is_store;
-    reg [4:0]  rob_tag;
-    reg [4:0]  addr_tag;
-    reg        addr_ready;
-    reg [31:0] addr_val;
-    reg [4:0]  data_tag;
-    reg        data_ready;
-    reg [31:0] data_val;
+    reg        		issue_en;
+    reg        		is_store;
+    reg [4:0]  		rob_tag;
+    reg [4:0]  		addr_tag;
+    reg        		addr_ready;
+    reg [31:0] 		addr_val;
+    reg [4:0]  		data_tag;
+    reg        		data_ready;
+    reg [31:0] 		data_val;
 
     // CDB input
-    reg        cdb_valid;
-    reg [4:0]  cdb_tag;
-    reg [31:0] cdb_data;
+    reg        		cdb_valid;
+    reg [4:0]  		cdb_tag;
+    reg [31:0] 		cdb_data;
 
     // Memory issue
-    wire         mem_req;
-    wire         mem_we;
-    wire [31:0]  mem_addr;
-    wire [31:0]  mem_data;
+    wire         	mem_req;
+    wire         	mem_we;
+    wire [31:0]  	mem_addr;
+    wire [31:0]  	mem_data;
 
     // Memory ack
-    reg        mem_ack;
-    reg [31:0] mem_read_val;
+    reg        		mem_ack;
+    reg [31:0] 		mem_read_val;
 
     // To ROB / CDB
-    wire         lsu_done;
-    wire [4:0]   lsu_tag;
-    wire [31:0]  lsu_val;
+    wire         	lsu_done;
+    wire [4:0]   	lsu_tag;
+    wire [31:0]  	lsu_val;
  
  	load_store_queue DUT(
 		.clk(clk),
@@ -65,16 +65,37 @@ module load_store_queue ();
 	always #5 clk = ~clk;
 
 	initial begin
-		clk = 0;
-		rst_n = 0;
-		
-		issue_en = 1;
-		is_store = 
-		rob_tag = 
-		addr_ready = 
-		addr_tag = 
-		addr_val = 
-		data_tag = 
-		data_ready = 
-		data_val = 
+		clk 		= 0;
+		rst_n 		= 0;
+		issue_en 	= 0;
+		is_store	= 0;
 
+		repeat(10) @(posedge clk);
+		rst_n 		= 1;
+		
+		issue_en 	= 1;
+		is_store 	= 1; 
+		rob_tag 	= $random;
+		addr_ready 	= 1;
+		addr_tag 	= $random;
+		addr_val 	= $random;
+		data_tag 	= $random;
+		data_ready 	= 1;
+		data_val 	= $random;
+
+		repeat(5) @(posedge clk);
+
+		cdb_valid 	= 1;
+		cdb_tag		= 1;
+		cdb_data	= $random;
+
+		repeat(5) @(posedge clk);
+
+		mem_ack			= 1;
+		mem_read_val	= $random;
+
+		repeat(5) @(posedge clk);
+		$finish;
+
+	end
+endmodule
