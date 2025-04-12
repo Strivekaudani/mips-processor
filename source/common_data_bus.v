@@ -3,6 +3,7 @@
 module common_data_bus (
 	input wire 				clk,
 	input wire				rst_n,
+	input wire 				valid_in,
 	input wire [4:0] 		tag_in,
 	input wire [31:0] 		data_in,
 
