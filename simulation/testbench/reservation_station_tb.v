@@ -60,36 +60,40 @@ module reservation_station_tb ();
 
 	initial begin
 
-		clk = 0;
-		rst_n = 0;
-		issue_en = 0;
+		clk 		= 0;
+		rst_n 		= 0;
+		issue_en 	= 0;
 
 		repeat(10) @(posedge clk);
 		
-		rst_n = 1;
+		rst_n 		= 1;
 
-		for (i = 0; i < 32; i = i + 1) begin
-			// Issue testing
-			issue_en = $random;
-			opcode = $random;
-			tag_dest = $random;
-			rs_ready = $random;
-			val_rs = $random;
-			tag_rs = $random;
-			rt_ready = $random;
-			val_rt = $random;
-			tag_rt = $random;
+		// Issue testing
+		issue_en 	= 1;
+		opcode 		= 6'b000000;
+		tag_dest 	= 0;
+		rs_ready 	= 1;
+		val_rs 		= $random;
+		tag_rs 		= 0;
+		rt_ready	= 1;
+		val_rt 		= $random;
+		tag_rt 		= 0;
 
-			//alu issue testing
-			alu_ready = $random;
+		repeat(10) @(posedge clk);
+		issue_en 	= 0;
 
-			// CDB update testing
-			cdb_valid = $random;
-			cdb_tag = $random;
-			cdb_data = $random;
+		//alu issue testing
+		alu_ready 	= 1;
 
-			@(posedge clk);
-		end
+		repeat(10) @(posedge clk);
+		alu_ready	= 0;
+
+		// CDB update testing
+		cdb_valid 	= 1;
+		cdb_tag 	= 0;
+		cdb_data 	= $random;
+
+		@(posedge clk);
 
 		repeat(10) @(posedge clk);
 		$finish;

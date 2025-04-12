@@ -41,6 +41,9 @@ module reservation_station (
 	reg [4:0]			Qj [0:RS_SIZE-1];
 	reg [4:0]			Qk [0:RS_SIZE-1];
 	reg [4:0]			dest_tag [0:RS_SIZE-1];
+
+	reg					i_toggle;
+	reg					a_toggle;
 	
 
 	integer i;
@@ -55,13 +58,17 @@ module reservation_station (
 				Qk[i]		<= NONE;
 			end
 			rs_valid_out	<= 0;
+			i_toggle		<= 0;
+			a_toggle		<= 0;
 		end else begin
 			rs_valid_out 	<= 0;
+			i_toggle		<= 0;
+			a_toggle		<= 0;
 
 			// Issue stage: find an empty slot
 			if (issue_en) begin
 				for (i = 0; i < RS_SIZE; i = i + 1) begin
-					if (!busy[i]) begin
+					if (!busy[i] && !i_toggle) begin
 						busy[i]		<= 1;
 						op[i]		<= opcode;
 						dest_tag[i] <= tag_dest;
@@ -81,6 +88,7 @@ module reservation_station (
 						end
 
 						//break;
+						i_toggle	<= 1;
 					end
 				end
 			end
@@ -88,13 +96,15 @@ module reservation_station (
 			// ALU Issue Stage
 			if (alu_ready) begin
 				for (i = 0; i < RS_SIZE; i = i + 1) begin
-					if (busy[i] && Qj[i] == NONE && Qk[i] == NONE) begin
+					if (!a_toggle && busy[i] && Qj[i] == NONE && Qk[i] == NONE) begin
 						alu_opcode		<= op[i];
 						alu_op1			<= Vj[i];
 						alu_op2			<= Vk[i];
 						alu_dest_tag	<= dest_tag[i];
 						rs_valid_out	<= 1;
 						busy[i]			<= 0;
+
+						a_toggle		<= 1;
 						//break;
 					end
 				end
