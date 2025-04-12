@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module reorder_buffer (
     input  wire        clk,
     input  wire        rst_n,
@@ -32,16 +34,21 @@ module reorder_buffer (
 
     reg [2:0] 	head, tail;
 
-    wire empty = (head == tail) && !valid[head];
-    wire full = (head == tail) && valid[head];
+	wire empty, full;
+	integer i;
+
+
+    assign empty = (head == tail) && !valid[head];
+    assign full = (head == tail) && valid[head];
     assign rob_full = full;
 
-    always @(posedge clk or posedge reset) begin
+
+    always @(posedge clk or posedge rst_n) begin
         if (rst_n == 'b0) begin
             head 		<= 0;
             tail 		<= 0;
             commit_en 	<= 0;
-            for (integer i = 0; i < ROB_SIZE; i = i + 1) begin
+            for (i = 0; i < ROB_SIZE; i = i + 1) begin
                 valid[i] <= 0;
                 ready[i] <= 0;
             end
@@ -79,4 +86,6 @@ module reorder_buffer (
             end
         end
     end
+
+
 endmodule
