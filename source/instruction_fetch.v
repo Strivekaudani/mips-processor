@@ -20,9 +20,11 @@ module instruction_fetch (
 		else if (load_mem_en) 
 			instr_mem[load_mem_addr] <= load_mem_data;
 		else if (!stall) 
-			pc 	<= pc + 32'd4;
+			//pc 	<= pc + 32'd4;
+			pc 	<= pc + 32'd1;
 	end
 
-	assign instr 	= instr_mem[pc >> 2]; //word aligned access
+	//assign instr 	= instr_mem[pc >> 2]; //word aligned access
+	assign instr 	= instr_mem[pc]; //word aligned access
 	assign pc_out 	= pc;
 endmodule
