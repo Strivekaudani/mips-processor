@@ -2,7 +2,7 @@
 
 module cpu_top (
     input wire clk,
-    input wire reset
+    input wire rst_n
 );
     // Wires to interconnect modules
     wire [31:0] instr, pc;
@@ -53,7 +53,7 @@ module cpu_top (
 
     // === Instantiate Modules ===
 
-    instr_fetch IF (.clk(clk), .reset(reset), .stall(1'b0), .instr_out(instr), .pc_out(pc));
+    instr_fetch IF (.clk(clk), .rst_n(rst_n), .stall(1'b0), .instr_out(instr), .pc_out(pc));
 
     decoder ID (
         .instr(instr), .opcode(opcode), .rs(rs), .rt(rt), .rd(rd), .imm(imm),
@@ -61,14 +61,14 @@ module cpu_top (
     );
 
     rename_unit RU (
-        .clk(clk), .reset(reset), .rs(rs), .rt(rt), .rd(rd),
+        .clk(clk), .rst_n(rst_n), .rs(rs), .rt(rt), .rd(rd),
         .has_dest(is_store | is_alu | is_load), .issue_enable(1'b1),
         .rob_tag_alloc(rob_tag_alloc), .rs_tag_out(rs_tag), .rt_tag_out(rt_tag),
         .rs_ready(rs_ready), .rt_ready(rt_ready), .dest_rob_tag_out(dest_tag), .stall()
     );
 
     reservation_station RS (
-        .clk(clk), .reset(reset), .issue_en(1'b1), .opcode(opcode), .tag_dest(dest_tag),
+        .clk(clk), .rst_n(rst_n), .issue_en(1'b1), .opcode(opcode), .tag_dest(dest_tag),
         .tag_rs(rs_tag), .rs_ready(rs_ready), .val_rs(32'b0),
         .tag_rt(rt_tag), .rt_ready(rt_ready), .val_rt(32'b0),
         .stall(), .alu_ready(alu_ready), .rs_valid_out(rs_valid_out),
@@ -89,7 +89,7 @@ module cpu_top (
     );
 
     load_store_queue LSQ (
-        .clk(clk), .reset(reset), .issue_en(is_store | is_load), .is_store(is_store),
+        .clk(clk), .rst_n(rst_n), .issue_en(is_store | is_load), .is_store(is_store),
         .rob_tag(dest_tag), .addr_tag(rs_tag), .addr_ready(rs_ready), .addr_val(alu_op1),
         .data_tag(rt_tag), .data_ready(rt_ready), .data_val(alu_op2),
         .cdb_valid(cdb_valid), .cdb_tag(cdb_tag), .cdb_data(cdb_data),
@@ -104,7 +104,7 @@ module cpu_top (
     );
 
     reorder_buffer ROB (
-        .clk(clk), .reset(reset), .allocate(1'b1), .dest_arch_reg(rd), .is_store(is_store),
+        .clk(clk), .rst_n(rst_n), .allocate(1'b1), .dest_arch_reg(rd), .is_store(is_store),
         .alloc_tag(rob_tag_alloc), .rob_full(rob_full),
         .cdb_valid(cdb_valid), .cdb_tag(cdb_tag), .cdb_val(cdb_data),
         .commit_arch_reg(commit_arch_reg), .commit_val(commit_val),
@@ -112,14 +112,14 @@ module cpu_top (
     );
 
     reg_file RF (
-        .clk(clk), .reset(reset), .raddr1(rs), .raddr2(rt),
+        .clk(clk), .rst_n(rst_n), .raddr1(rs), .raddr2(rt),
         .rdata1(rdata1), .rdata2(rdata2),
         .we(commit_en & ~commit_is_store), .waddr(commit_arch_reg), .wdata(commit_val)
     );
 
     // Generate commit ack
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (rst_n) begin
             commit_ack <= 0;
         end else begin
             commit_ack <= commit_en;
