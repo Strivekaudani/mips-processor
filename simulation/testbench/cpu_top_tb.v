@@ -8,6 +8,8 @@ module cpu_top_tb ();
 	reg [4:0]		load_mem_addr;
 
 	integer 		i;
+
+	reg [31:0] 		instr_mem [0:31];
 	
 	cpu_top DUT (
 		.clk(clk),
@@ -23,6 +25,11 @@ module cpu_top_tb ();
 		rst_n 			= 0;
 		load_mem_en 	= 0;
 		
+		$readmemh("../instructions.mem", instr_mem);
+
+		for (i = 0; i < 32; i = i + 1) 
+			$display("Memory loaded: %h", instr_mem[i]);
+		
 		repeat(10) @(posedge clk);
 
 		rst_n 			= 1;
@@ -30,7 +37,7 @@ module cpu_top_tb ();
 
 		for (i = 0; i < 32; i = i + 1) begin
 			load_mem_addr 	= i;
-			load_mem_data 	= $random;
+			load_mem_data 	= instr_mem[i];
 			@(posedge clk);
 		end
 			
