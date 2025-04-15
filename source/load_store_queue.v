@@ -37,6 +37,7 @@ module load_store_queue (
 );
     parameter LSQ_SIZE 	= 4;
     parameter NONE 		= 5'b11111;
+	parameter SSS_SIZE  = 256;
 
     reg 		busy        [0:LSQ_SIZE-1];
     reg 		entry_store [0:LSQ_SIZE-1];
@@ -47,10 +48,15 @@ module load_store_queue (
     reg [31:0] 	data  		[0:LSQ_SIZE-1];
     reg 		addr_rdy 	[0:LSQ_SIZE-1];
     reg 		data_rdy 	[0:LSQ_SIZE-1];
-	
+
+	reg [31:0]	sss_addr_mem [0:SSS_SIZE-1];
+	reg [31:0]	sss_data_mem [0:SSS_SIZE-1];
+
+	reg			squash_store;	
 	reg			i_toggle;
 	reg			m_toggle;
     integer 	i;
+	integer		j;
 
     always @(posedge clk or posedge rst_n) begin
         if (rst_n == 1'b0) begin
@@ -68,11 +74,13 @@ module load_store_queue (
 			lsu_val 	<= 0;
 			i_toggle 	<= 0;
 			m_toggle 	<= 0;
+			squash_store <= 0;
         end else begin
             mem_req 	<= 0;
             lsu_done 	<= 0;
 			i_toggle 	<= 0;
 			m_toggle 	<= 0;
+			squash_store <= 0;
 
             // === ISSUE NEW ENTRY ===
             if (issue_en) begin
@@ -88,7 +96,7 @@ module load_store_queue (
                         data[i]      	<= data_ready ? data_val : 32'bx;
                         data_rdy[i] 	<= data_ready;
 
-						i_toggle 		= 1;
+						i_toggle 		<= 1;
 
                         //break;
                     end
@@ -114,26 +122,36 @@ module load_store_queue (
             // === MEMORY ISSUE ===
             for (i = 0; i < LSQ_SIZE; i = i + 1) begin
                 if (!m_toggle && busy[i] && addr_rdy[i] && (!entry_store[i] || data_rdy[i])) begin
-                    mem_req  	<= 1;
-                    mem_we   	<= entry_store[i];
-                    mem_addr 	<= addr[i];
-                    mem_data 	<= data[i];
-                    lsu_tag  	<= tag[i];
+				
+					for (j = 0; j < SSS_SIZE; j = j + 1) begin
+						if ((sss_addr_mem[j] == addr[i]) && (sss_data_mem[j] == data[i])) begin
+							squash_store <= 1;
+						end
+					end
+					
+					if (!squash_store) begin
+						mem_req  	<= 1;
+						mem_we   	<= entry_store[i];
+						mem_addr 	<= addr[i];
+						mem_data 	<= data[i];
+						lsu_tag  	<= tag[i];
+					end
 
-                    if (mem_ack) begin
-                        if (entry_store[i]) begin
-                            lsu_done 	<= 1;
-                            lsu_val  	<= 32'b0;
-                        end else begin
-                            lsu_done 	<= 1;
-                            lsu_val  	<= mem_read_val;
-                        end
-                        busy[i] 		<= 0;
-                    end
-					m_toggle 			= 1;
+					m_toggle 			<= 1;
                     //break; // issue only one mem op at a time
                 end
             end
+
+			if (mem_ack) begin
+				if (entry_store[i]) begin
+					lsu_done 	<= 1;
+					lsu_val  	<= 32'b0;
+				end else begin
+					lsu_done 	<= 1;
+					lsu_val  	<= mem_read_val;
+				end
+				busy[i] 		<= 0;
+			end
         end
     end
 endmodule

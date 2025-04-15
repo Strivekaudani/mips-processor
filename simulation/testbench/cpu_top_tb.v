@@ -34,12 +34,18 @@ module cpu_top_tb ();
 
 		rst_n 			= 1;
 		load_mem_en  	= 1;
-
+	
+		/*
 		for (i = 0; i < 32; i = i + 1) begin
 			load_mem_addr 	= i;
 			load_mem_data 	= instr_mem[i];
 			@(posedge clk);
 		end
+		*/
+
+		load_mem_addr = 0;
+		load_mem_data = instr_mem[10];
+		@(posedge clk);
 			
 		load_mem_en = 0;
 		

@@ -30,6 +30,7 @@ module rename_unit (
 		if(rst_n == 'b0) begin
 			for(i = 0; i < 32; i = i + 1)
 				RAT[i] <= NONE;
+			rs_ready <= 1;
 		end else if (issue_enable) begin
 			// Read operand rs
 			if (RAT[rs] == NONE) begin

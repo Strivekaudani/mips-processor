@@ -204,7 +204,7 @@ module cpu_top (
 
     // Generate commit ack
     always @(posedge clk or negedge rst_n) begin
-        if (rst_n) begin
+        if (rst_n == 1'b0) begin
             commit_ack <= 0;
         end else begin
             commit_ack <= commit_en;

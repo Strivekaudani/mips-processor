@@ -43,8 +43,8 @@ module reorder_buffer (
     assign rob_full = full;
 
 
-    always @(posedge clk or posedge rst_n) begin
-        if (rst_n == 'b0) begin
+    always @(posedge clk or negedge rst_n) begin
+        if (rst_n == 1'b0) begin
             head 		<= 0;
             tail 		<= 0;
             commit_en 	<= 0;
