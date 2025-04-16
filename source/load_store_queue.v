@@ -37,7 +37,7 @@ module load_store_queue (
 );
     parameter LSQ_SIZE 	= 4;
     parameter NONE 		= 5'b11111;
-	parameter SSS_SIZE  = 4096;
+	parameter SSS_SIZE  = 255;
 
     reg 		busy        [0:LSQ_SIZE-1];
     reg 		entry_store [0:LSQ_SIZE-1];

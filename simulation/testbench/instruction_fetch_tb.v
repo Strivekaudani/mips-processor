@@ -11,6 +11,8 @@ module instruction_fetch_tb();
 	wire [31:0] 		instr;
 	wire [31:0] 		pc_out;
 
+	reg [31:0] 		instr_mem [0:31];
+
 	integer i;
 
 	instruction_fetch DUT (
@@ -31,6 +33,8 @@ module instruction_fetch_tb();
 		rst_n 			= 0;
 		stall 			= 0;
 		load_mem_en 	= 0;
+
+		$readmemh("../instructions.mem", instr_mem);
 		
 		repeat(10) @(posedge clk);
 
@@ -39,7 +43,7 @@ module instruction_fetch_tb();
 
 		for (i = 0; i < 32; i = i + 1) begin
 			load_mem_addr 	= i;
-			load_mem_data 	= $random;
+			load_mem_data 	= instr_mem[i];
 			@(posedge clk);
 		end
 			

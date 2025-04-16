@@ -68,7 +68,7 @@ then
     if [ $gui == 1 ]
     then
 	# if gui
-	xmverilog ../testbench/${topmodule}_tb.v +access+r +gui	
+	xmverilog ../testbench/${topmodule}_tb.v +access+r +gui	+INFILE=instructions.mem
     else
 	# if not gui
 	xmverilog ../testbench/${topmodule}_tb.v +access+r
