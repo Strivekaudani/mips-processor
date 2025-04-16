@@ -37,7 +37,7 @@ module load_store_queue (
 );
     parameter LSQ_SIZE 	= 4;
     parameter NONE 		= 5'b11111;
-	parameter SSS_SIZE  = 256;
+	parameter SSS_SIZE  = 4096;
 
     reg 		busy        [0:LSQ_SIZE-1];
     reg 		entry_store [0:LSQ_SIZE-1];
@@ -57,6 +57,7 @@ module load_store_queue (
 	reg			m_toggle;
     integer 	i;
 	integer		j;
+	integer 	index;
 
     always @(posedge clk or posedge rst_n) begin
         if (rst_n == 1'b0) begin
@@ -75,6 +76,7 @@ module load_store_queue (
 			i_toggle 	<= 0;
 			m_toggle 	<= 0;
 			squash_store <= 0;
+			index 		<= 0;
         end else begin
             mem_req 	<= 0;
             lsu_done 	<= 0;
@@ -135,6 +137,14 @@ module load_store_queue (
 						mem_addr 	<= addr[i];
 						mem_data 	<= data[i];
 						lsu_tag  	<= tag[i];
+
+						sss_data_mem[index] <= data[i];
+						sss_addr_mem[index] <= addr[i];
+						index <= index + 1;
+					end
+
+					if (index ==  SSS_SIZE) begin
+						index <= 0;
 					end
 
 					m_toggle 			<= 1;
